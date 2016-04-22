@@ -143,6 +143,7 @@ do
 
         -- TODO: do we have entire message in this packet
         -- or do we need reassembly?
+        -- see https://wiki.wireshark.org/Lua/Dissectors#TCP_reassembly
 
         -- build the 'program' to parse the suitable Message
         local prog = assert(loadstring("return rpc."..pbmsg.."():Parse(...)"))
@@ -163,8 +164,18 @@ do
         -- add RPC Data subtree to OST-RPC tree
         local data = t:add(p_data, buf(8, length))
         data:append_text(": "..pbmsg)
-        local pbm = data:add(f_msg, buf(8, length))
-        pbm:set_text(txt)
+
+        -- Wireshark truncates each decode line at 240 characters
+        -- split into multiple line if required
+        if (#txt > 240) then
+            for s in txt:gmatch("[^\r\n]+") do
+                local s2 = data:add(f_msg)
+                s2:set_text(s)
+            end
+        else
+            local pbm = data:add(f_msg, buf(8, length))
+            pbm:set_text(txt)
+        end
 
         -- update top pane cols
         -- TODO: instead of pbmsg use actual [elided] data
