@@ -88,19 +88,18 @@ do
     -- OST-RPC protocol
     local p_ostrpc = Proto("ostrpc","Ostinato RPC");
 
-    -- RPC Header Field(s)
-    --local f_hdr = ProtoField.bytes("ostrpc.header","RPC Header")
+    -- RPC Header (Sub)Proto and Field(s)
     local p_hdr = Proto("ostrpc.header","RPC Header")
     local f_type = ProtoField.uint16("ostrpc.type","Type",base.DEC, types)
     local f_method = ProtoField.uint16("ostrpc.method","Method",base.DEC,
                          methods)
     local f_len = ProtoField.uint32("ostrpc.length","Message Length",base.DEC)
 
-    -- RPC Data Field(s)
-    local f_data = ProtoField.string("ostrpc.data","RPC Data")
+    -- RPC Data (Sub)Proto and Field(s)
+    local p_data = Proto("ostrpc.data","RPC Data")
     local f_msg = ProtoField.string("ostrpc.message","Message")
 
-    p_ostrpc.fields = {f_type, f_method, f_len, f_data, f_msg}
+    p_ostrpc.fields = {f_type, f_method, f_len, f_msg}
 
     function string.fromhex(str)
         return (str:gsub('..', function (cc)
@@ -162,9 +161,9 @@ do
         info("4")
 
         -- add RPC Data subtree to OST-RPC tree
-        local data = t:add(f_data, "")
-        data:append_text(pbmsg)
-        local pbm = data:add(f_msg, "")
+        local data = t:add(p_data, buf(8, length))
+        data:append_text(": "..pbmsg)
+        local pbm = data:add(f_msg, buf(8, length))
         pbm:set_text(txt)
 
         -- update top pane cols
