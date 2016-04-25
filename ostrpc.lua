@@ -50,7 +50,7 @@ do
                response = "StreamIdList"},
         [4] = {rpc = "getStreamConfig",
                request = "StreamIdList",
-               response = "Ack"},
+               response = "StreamConfigList"},
         [5] = {rpc = "addStream",
                request = "StreamIdList",
                response = "Ack"},
