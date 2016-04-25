@@ -166,7 +166,7 @@ do
         -- local msg = rpc.VersionInfo():Parse(byt)
 
         -- build the 'program' to parse the suitable Message
-        local prog = assert(loadstring("return rpc."..pbmsg.."():Parse(...)"))
+        local prog = assert(loadstring("return OstProto."..pbmsg.."():Parse(...)"))
 
         -- extract the serialized data to parse
         local byt = tostring(buf(8, length):bytes()):fromhex()
@@ -195,8 +195,7 @@ do
 
         -- update top pane cols
         pinfo.cols.protocol = "OST-RPC"
-        local txt2 = string.gsub(txt, '\n', '')
-        txt2 = string.gsub(txt, '%s+', ' ')
+        local txt2 = txt:gsub('%s+', ' '):gsub('%s+$', '')
         -- TODO: truncate txt2 at 64 bytes and add elided ("...") symbol
         if msg_type == 1 then
             pinfo.cols.info = methods[method].." ("..txt2..")"
