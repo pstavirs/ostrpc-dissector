@@ -10,13 +10,6 @@ do
         [4] = "Error",
         [5] = "Notify",
     }
-    local types2 = {
-        [1] = "CALL",
-        [2] = "RESP",
-        [3] = "BLOB",
-        [4] = "ERRR",
-        [5] = "NTFY",
-    }
     local methods = {
         [0] = "getPortIdList",
         [1] = "getPortConfig",
@@ -154,7 +147,7 @@ do
         hdr:add(f_len, buf(4,4), length)
 
         hdr:append_text(": "..types[msg_type].." "..methods[method])
-        t:append_text(", "..types2[msg_type].." "..methods[method])
+        t:append_text(", "..types[msg_type].." "..methods[method])
 
         -- find the Message corresponding to the RPC method and msg_type
         local pbmsg = ""
@@ -201,9 +194,17 @@ do
         end
 
         -- update top pane cols
-        -- TODO: instead of pbmsg use actual [elided] data
         pinfo.cols.protocol = "OST-RPC"
-        pinfo.cols.info = types2[msg_type]..": "..methods[method].." ("..pbmsg..")"
+        local txt2 = string.gsub(txt, '\n', '')
+        txt2 = string.gsub(txt, '%s+', ' ')
+        -- TODO: truncate txt2 at 64 bytes and add elided ("...") symbol
+        if msg_type == 1 then
+            pinfo.cols.info = methods[method].." ("..txt2..")"
+        elseif msg_type == 2 then
+            pinfo.cols.info = methods[method].." --> "..txt2
+        else
+            pinfo.cols.info = types[msg_type]..": "..methods[method]
+        end
     end
 
     function tcp_dissect_pdu(buf, pinfo, tree, pdu_hdr_len,
