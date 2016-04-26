@@ -26,7 +26,16 @@ do
         [12] = "getCaptureBuffer",
         [13] = "getStats",
         [14] = "clearStats",
-        [15] = "checkVersion"
+        [15] = "checkVersion",
+        [16] = "getDeviceGroupIdList",
+        [17] = "getDeviceGroupConfig",
+        [18] = "addDeviceGroup",
+        [19] = "deleteDeviceGroup",
+        [20] = "modifyDeviceGroup",
+        [21] = "getDeviceList",
+        [22] = "resolveDeviceNeighbors",
+        [23] = "clearDeviceNeighbors",
+        [24] = "getDeviceNeighbors"
     }
     local rpc_list = {
         [0] = {rpc = "getPortIdList",
@@ -75,9 +84,36 @@ do
                request = "PortIdList",
                response = "Ack"},
         [15] = {rpc = "checkVersion",
-                request = "VersionInfo",
-                response = "VersionCompatibility"}
-    }
+               request = "VersionInfo",
+               response = "VersionCompatibility"},
+        [16] = {rpc = "getDeviceGroupIdList",
+               request = "PortId",
+               response = "DeviceGroupIdList"},
+        [17] = {rpc = "getDeviceGroupConfig",
+               request = "DeviceGroupIdList",
+               response = "DeviceGroupConfigList"},
+        [18] = {rpc = "addDeviceGroup",
+               request = "DeviceGroupIdList",
+               response = "Ack"},
+        [19] = {rpc = "deleteDeviceGroup",
+               request = "DeviceGroupIdList",
+               response = "Ack"},
+        [20] = {rpc = "modifyDeviceGroup",
+               request = "DeviceGroupConfigList",
+               response = "Ack"},
+        [21] = {rpc = "getDeviceList",
+               request = "PortId",
+               response = "PortDeviceList"},
+        [22] = {rpc = "resolveDeviceNeighbors",
+               request = "PortIdList",
+               response = "Ack"},
+        [23] = {rpc = "clearDeviceNeighbors",
+               request = "PortIdList",
+               response = "Ack"},
+        [24] = {rpc = "getDeviceNeighbors",
+               request = "PortId",
+               response = "PortNeighborList"}
+           }
     -- OST-RPC protocol
     local p_ostrpc = Proto("ostrpc","Ostinato RPC");
 
@@ -196,7 +232,9 @@ do
         -- update top pane cols
         pinfo.cols.protocol = "OST-RPC"
         local txt2 = txt:gsub('%s+', ' '):gsub('%s+$', '')
-        -- TODO: truncate txt2 at 64 bytes and add elided ("...") symbol
+        if #txt2 > 64 then
+            txt2 = txt2:sub(1,61).."..."
+        end
         if msg_type == 1 then
             pinfo.cols.info = methods[method].." ("..txt2..")"
         elseif msg_type == 2 then
